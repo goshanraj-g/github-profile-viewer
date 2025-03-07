@@ -15,8 +15,6 @@ interface GitHubUser {
     updated_at: string;
 }
 
-
-
 window.addEventListener("load", () => {
     const btn = document.getElementById("submit");
     const inputLink = (document.getElementById("github-link") as HTMLInputElement);
@@ -27,23 +25,32 @@ window.addEventListener("load", () => {
     }
 
     btn.addEventListener("click", () => {
-        window.location.href = 'stats.html';
-        const profile = document.getElementById("profile") as HTMLElement;
+        const username = inputLink?.value;
+        if (username) {
+            fetch(`http://api.github.com/users/${username}`).then(response => response.json()).then((data: GitHubUser) => {
+                localStorage.setItem('githubUser', JSON.stringify(data));
 
-        function getProfile() {
-            const username = (document.getElementById("inputLink") as HTMLInputElement)?.value;
-            fetch(`https://api.github.com/users/${username}`)
-                .then(response => response.json())
-                .then(data => {
-                    profile.innerHTML = `
-                    <h2>${data.name} (@${data.login})</h2>
-                    <img src="${data.avatar_url}" width="100">
-                    <p>${data.bio}</p>
-                    <p>Followers: ${data.followers} | Following: ${data.following}</p>
-                    <a href="${data.html_url}" target="_blank">View Profile</a>
-                `;
-                })
+                window.location.href = 'stats.html';
 
+            })
+                .catch(error => console.error("error fetching GitHub Profile", error));
+        } else {
+            alert("please enter a proper github user-name");
         }
     });
+
+    const profile = document.getElementById("profile");
+    if (profile && window.location.pathname.endsWith('stats.html')) {
+        const userData = localStorage.getItem('githubUser');
+        if (userData) {
+            const data: GitHubUser = JSON.parse(userData);
+            document.getElementById("username")!.textContent = data.name || data.login;
+            document.getElementById("bio")!.textContent = data.bio || "No bio available";
+            document.getElementById("followers")!.textContent = `Followers: ${data.followers}`;
+            document.getElementById("following")!.textContent = `Following: ${data.following}`;
+            document.getElementById("public_repos")!.textContent = `Public Repos: ${data.public_repos}`;
+        } else {
+            profile.innerHTML = "<p>No data available</p>";
+        }
+    }
 });
