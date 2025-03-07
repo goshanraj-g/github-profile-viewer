@@ -1,45 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>GitHub Profile Viewer</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        .hidden {
-            display: none;
-        }
-    </style>
-</head>
+    <link rel="icon" href="img/favicon-svg.svg" type="image/x-icon">
 
-<body>
+    
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
     <div id="hero">
-        <h1>GitHub Profile Viewer</h1>
+      <h1><i class="fab fa-github"></i> GitHub Profile Viewer</h1>
+      <p class="subtitle">
+        Search for any GitHub profile to view their details
+      </p>
     </div>
 
     <!-- Input Section -->
     <div id="main">
-        <div id="inputs">
-            <input type="text" id="github-link" placeholder="https://github.com/username">
-        </div>
-        <input type="button" id="submit" value="View Profile"><br>
+      <div id="inputs">
+        <input
+          type="text"
+          id="github-link"
+          placeholder="https://github.com/username"
+        />
+        <button id="submit">View Profile</button>
+      </div>
     </div>
 
     <!-- Profile Section -->
     <div id="profile" class="hidden">
-        <div id="text-elements">
+      <div class="profile-container">
+        <div class="profile-header">
+          <div id="avatar-container">
+            <img id="avatar" src="" alt="Profile avatar" />
+          </div>
+          <div class="profile-title">
             <h1 id="username"></h1>
-            <p id="name"></p>
-            <p id="bio"></p>
-            <p id="location"></p>
-            <p id="followers"></p>
-            <p id="following"></p>
-            <p id="public_repos"></p>
+            <p id="login" class="login-name"></p>
+          </div>
         </div>
-        <button id="back-button">Back to Search</button>
+
+        <div class="profile-details">
+          <div class="profile-bio">
+            <p id="bio"></p>
+          </div>
+
+          <div class="profile-stats">
+            <div class="stat-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <p id="location"></p>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-users"></i>
+              <p id="followers"></p>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-user-friends"></i>
+              <p id="following"></p>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-code-branch"></i>
+              <p id="public_repos"></p>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-calendar-alt"></i>
+              <p id="created_at"></p>
+            </div>
+          </div>
+
+          <!-- Languages Section -->
+          <div class="languages-section">
+            <h2><i class="fas fa-code"></i> Most Used Languages</h2>
+            <div id="languages-container" class="languages-container">
+              <!-- Languages will be inserted here -->
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <a
+              id="github-link-button"
+              href="#"
+              target="_blank"
+              class="github-btn"
+            >
+              <i class="fab fa-github"></i> View on GitHub
+            </a>
+            <button id="back-button" class="back-btn">
+              <i class="fas fa-arrow-left"></i> Back to Search
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-
     <script src="ts/script.js"></script>
-</body>
-
+  </body>
 </html>
