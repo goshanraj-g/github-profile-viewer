@@ -17,40 +17,52 @@ interface GitHubUser {
 
 window.addEventListener("load", () => {
     const btn = document.getElementById("submit");
-    const inputLink = (document.getElementById("github-link") as HTMLInputElement);
+    const inputLink = document.getElementById("github-link") as HTMLInputElement;
+    const profileSection = document.getElementById("profile");
+    const mainSection = document.getElementById("main");
+    const backButton = document.getElementById("back-button");
 
-    if (!btn) {
-        console.error("Button with ID 'submit' is not available");
+    if (!btn || !profileSection || !mainSection || !backButton) {
+        console.error("Required elements are not available");
         return;
     }
 
+    function showProfile() {
+        if (mainSection && profileSection) {
+            mainSection.classList.add("hidden");
+            profileSection.classList.remove("hidden");
+        }
+
+    }
+
+    function showInput() {
+        if (mainSection && profileSection) {
+            mainSection.classList.remove("hidden");
+            profileSection.classList.add("hidden");
+        }
+    }
+
     btn.addEventListener("click", () => {
-        const username = inputLink?.value;
+        const username = inputLink?.value.split('/').pop(); 
         if (username) {
-            fetch(`http://api.github.com/users/${username}`).then(response => response.json()).then((data: GitHubUser) => {
-                localStorage.setItem('githubUser', JSON.stringify(data));
+            fetch(`https://api.github.com/users/${username}`)
+                .then(response => response.json())
+                .then((data: GitHubUser) => {
+                    document.getElementById("username")!.textContent = data.name || data.login;
+                    document.getElementById("bio")!.textContent = data.bio || "No bio available";
+                    document.getElementById("followers")!.textContent = `Followers: ${data.followers}`;
+                    document.getElementById("following")!.textContent = `Following: ${data.following}`;
+                    document.getElementById("public_repos")!.textContent = `Public Repos: ${data.public_repos}`;
 
-                window.location.href = 'stats.html';
-
-            })
-                .catch(error => console.error("error fetching GitHub Profile", error));
+                    showProfile();
+                })
+                .catch(error => console.error("Error fetching GitHub profile:", error));
         } else {
-            alert("please enter a proper github user-name");
+            alert("Please enter a valid GitHub URL");
         }
     });
 
-    const profile = document.getElementById("profile");
-    if (profile && window.location.pathname.endsWith('stats.html')) {
-        const userData = localStorage.getItem('githubUser');
-        if (userData) {
-            const data: GitHubUser = JSON.parse(userData);
-            document.getElementById("username")!.textContent = data.name || data.login;
-            document.getElementById("bio")!.textContent = data.bio || "No bio available";
-            document.getElementById("followers")!.textContent = `Followers: ${data.followers}`;
-            document.getElementById("following")!.textContent = `Following: ${data.following}`;
-            document.getElementById("public_repos")!.textContent = `Public Repos: ${data.public_repos}`;
-        } else {
-            profile.innerHTML = "<p>No data available</p>";
-        }
-    }
+    backButton.addEventListener("click", () => {
+        showInput();
+    });
 });

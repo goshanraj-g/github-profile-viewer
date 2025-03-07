@@ -5,6 +5,11 @@
     <title>GitHub Profile Viewer</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,11 +17,22 @@
         <h1>GitHub Profile Viewer</h1>
     </div>
 
+    <!-- Input Section -->
     <div id="main">
         <div id="inputs">
             <input type="text" id="github-link" placeholder="https://github.com/username">
         </div>
         <input type="button" id="submit" value="View Profile"><br>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" class="hidden">
+        <h1 id="username"></h1>
+        <p id="bio"></p>
+        <p id="followers"></p>
+        <p id="following"></p>
+        <p id="public_repos"></p>
+        <button id="back-button">Back to Search</button>
     </div>
 
     <script src="ts/script.js"></script>
