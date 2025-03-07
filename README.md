@@ -4,7 +4,7 @@ A simple web application that allows users to search and view GitHub profiles us
 
 ## 📌 Features  
 - Search for GitHub users by username  
-- Display user details such as avatar, bio, followers, and repositories  
+- Display user details such as avatar, bio, followers, repositories, and most-used languages
 - Clean UI with a responsive layout  
 - Built using **TypeScript, HTML, and CSS**  
 
@@ -13,4 +13,6 @@ A simple web application that allows users to search and view GitHub profiles us
    ```sh
    git clone https://github.com/goshanraj-g/github-profile-viewer.git
    cd github-profile-viewer
-```sh
+
+2. Open/Run:
+   Open index.html in your browser or use a local server for better performance.
