@@ -1,0 +1,84 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: rgb(36, 41, 46);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+#hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#hero h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+#main {
+    text-align: center;
+    background-color: rgb(45, 51, 59);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+}
+
+#main h2 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+#inputs {
+    display: flex;
+    justify-content: center;
+}
+
+#github-link {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background-color: rgb(36, 41, 46);
+    color: white;
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#github-link::placeholder {
+    color: #8b949e;
+}
+
+#github-link:focus {
+    border-color: #0add2e;
+}
+
+#submit {
+    background-color: green;
+    color: white;    
+    margin-top: 3.2%;       
+    padding: 0.75rem 0.75rem;
+    border: none;            
+    border-radius: 8px;      
+    font-size: 0.8rem;         
+    cursor: pointer;         
+    transition: background-color 0.3s ease; 
+}
+
+#submit:hover {
+    background-color: darkgreen;
+}
