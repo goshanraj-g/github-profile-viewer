@@ -43,16 +43,18 @@ window.addEventListener("load", () => {
     }
 
     btn.addEventListener("click", () => {
-        const username = inputLink?.value.split('/').pop(); 
+        const username = inputLink?.value.split('/').pop();
         if (username) {
             fetch(`https://api.github.com/users/${username}`)
                 .then(response => response.json())
                 .then((data: GitHubUser) => {
                     document.getElementById("username")!.textContent = data.name || data.login;
                     document.getElementById("bio")!.textContent = data.bio || "No bio available";
+                    document.getElementById("location")!.textContent = `Location: ${data.location ?? "Not Available"}`;
                     document.getElementById("followers")!.textContent = `Followers: ${data.followers}`;
                     document.getElementById("following")!.textContent = `Following: ${data.following}`;
                     document.getElementById("public_repos")!.textContent = `Public Repos: ${data.public_repos}`;
+
 
                     showProfile();
                 })
