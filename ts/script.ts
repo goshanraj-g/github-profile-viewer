@@ -11,6 +11,8 @@ window.addEventListener("load", () => {
         if (!inputLink) {
             return;
         }
+        window.location.href='stats.html';
+        
 
     });
 
