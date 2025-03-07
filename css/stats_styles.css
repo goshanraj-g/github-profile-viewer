@@ -26,7 +26,7 @@ body {
     color: #ffffff;
 }
 
-#main {
+#profile {
     text-align: center;
     background-color: rgb(45, 51, 59);
     padding: 2rem;
@@ -35,7 +35,7 @@ body {
     width: 90%;
 }
 
-#main h2 {
+#profile h2 {
     font-size: 1.5rem;
     font-weight: 400;
     margin-bottom: 1.5rem;
