@@ -28,36 +28,22 @@ window.addEventListener("load", () => {
 
     btn.addEventListener("click", () => {
         window.location.href = 'stats.html';
-        const profile = document.getElementById("profile") as HTMLElement | null;
-        if (!profile) {
-            console.error("Profile cannot be reached");
-            return;
-        }
+        const profile = document.getElementById("profile") as HTMLElement;
 
         function getProfile() {
             const username = (document.getElementById("inputLink") as HTMLInputElement)?.value;
-            if (profile) {
-                fetch(`https://api.github.com/users/${username}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        profile.innerHTML = `
+            fetch(`https://api.github.com/users/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    profile.innerHTML = `
                     <h2>${data.name} (@${data.login})</h2>
                     <img src="${data.avatar_url}" width="100">
                     <p>${data.bio}</p>
                     <p>Followers: ${data.followers} | Following: ${data.following}</p>
                     <a href="${data.html_url}" target="_blank">View Profile</a>
                 `;
-                    })
-
-
-            }
-
-
+                })
 
         }
-
-
-
     });
-
 });
