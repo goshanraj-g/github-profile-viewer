@@ -1,2 +1,5 @@
 # Ignore compiled JavaScript files
 ts/*.js
+
+#API Keys
+.env
