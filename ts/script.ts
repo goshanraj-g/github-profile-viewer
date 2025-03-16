@@ -29,6 +29,22 @@ interface LanguageStat {
   color: string;
 }
 
+interface ContributionDate{
+  date: string;
+  count: number;
+}
+
+interface StarredRepo {
+  name: string;
+  owner: {
+    login: string;
+  };
+  html_url: string;
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+}
+
 window.addEventListener("load", () => {
   const submitBtn = document.getElementById("submit");
   const inputLink = document.getElementById("github-link") as HTMLInputElement;
@@ -193,7 +209,7 @@ window.addEventListener("load", () => {
           )!.textContent = `${data.following} following`;
           document.getElementById(
             "public_repos"
-          )!.textContent = `${data.public_repos} repositories`;
+          )!.textContent = `${data.public_repos} public repositories`;
           document.getElementById(
             "created_at"
           )!.textContent = `Joined on ${formatDate(data.created_at)}`;
