@@ -29,7 +29,7 @@ interface LanguageStat {
   color: string;
 }
 
-interface ContributionDate{
+interface ContributionDate {
   date: string;
   count: number;
 }
@@ -175,6 +175,190 @@ window.addEventListener("load", () => {
     });
   }
 
+  function fetchContributions(username: string): Promise<ContributionDay[]> {
+    // Note: GitHub doesn't have a direct API for contribution data
+    // This is a simplified approach to get recent commit activity
+    const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+    const since = oneYearAgo.toISOString();
+    const until = now.toISOString();
+
+    return fetch(`https://api.github.com/users/${username}/events?per_page=100`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Could not fetch contribution data");
+        }
+        return response.json();
+      })
+      .then((events) => {
+        // Process events to get contribution counts by day
+        const contributionMap: Map<string, number> = new Map();
+
+        // Initialize last 365 days with zero counts
+        for (let i = 0; i < 365; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split("T")[0];
+          contributionMap.set(dateStr, 0);
+        }
+
+        // Count push events (commits)
+        events.forEach((event: any) => {
+          if (event.type === "PushEvent") {
+            const date = event.created_at.split("T")[0];
+            const currentCount = contributionMap.get(date) || 0;
+            // Count each commit in the push
+            const commitCount = event.payload.commits?.length || 0;
+            contributionMap.set(date, currentCount + commitCount);
+          }
+        });
+
+        // Convert map to array of objects
+        const contributions: ContributionDay[] = [];
+        contributionMap.forEach((count, date) => {
+          contributions.push({ date, count });
+        });
+
+        // Sort by date
+        return contributions.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+      });
+  }
+
+  function fetchStarredRepos(username: string): Promise<StarredRepo[]> {
+    return fetch(
+      `https://api.github.com/users/${username}/starred?per_page=5&sort=updated`
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Could not fetch starred repositories");
+        }
+        return response.json();
+      })
+      .then((repos: StarredRepo[]) => {
+        return repos;
+      });
+  }
+
+  function renderContributionGraph(contributions: ContributionDay[]) {
+    const calendarContainer = document.querySelector(".contribution-calendar");
+    if (!calendarContainer) return;
+
+    calendarContainer.innerHTML = "";
+
+    // Get max contribution count for color scaling
+    const maxCount = Math.max(...contributions.map((day) => day.count), 4);
+
+    // Limit to most recent 91 days (13 weeks) for display
+    const recentContributions = contributions.slice(-91);
+
+    // Group by week (7 days)
+    for (let weekIndex = 0; weekIndex < 13; weekIndex++) {
+      const weekContainer = document.createElement("div");
+      weekContainer.className = "contribution-week";
+
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const index = weekIndex * 7 + dayIndex;
+        const day =
+          index < recentContributions.length
+            ? recentContributions[index]
+            : null;
+
+        const daySquare = document.createElement("div");
+        daySquare.className = "contribution-day";
+
+        if (day) {
+          // Calculate color intensity based on contribution count
+          let intensity = day.count / maxCount;
+          let colorClass = "level-0";
+
+          if (day.count > 0) {
+            if (intensity < 0.25) colorClass = "level-1";
+            else if (intensity < 0.5) colorClass = "level-2";
+            else if (intensity < 0.75) colorClass = "level-3";
+            else colorClass = "level-4";
+          }
+
+          daySquare.classList.add(colorClass);
+          daySquare.setAttribute("data-date", day.date);
+          daySquare.setAttribute("data-count", String(day.count));
+
+          // Add tooltip
+          daySquare.title = `${day.date}: ${day.count} contributions`;
+        }
+
+        weekContainer.appendChild(daySquare);
+      }
+
+      calendarContainer.appendChild(weekContainer);
+    }
+  }
+
+  function renderStarredRepos(repos: StarredRepo[]) {
+    const starredContainer = document.getElementById("starred-repos-container");
+    if (!starredContainer) return;
+
+    starredContainer.innerHTML = "";
+
+    if (repos.length === 0) {
+      const emptyMessage = document.createElement("p");
+      emptyMessage.textContent = "No starred repositories";
+      starredContainer.appendChild(emptyMessage);
+      return;
+    }
+
+    repos.forEach((repo) => {
+      const repoCard = document.createElement("div");
+      repoCard.className = "repo-card";
+
+      const repoHeader = document.createElement("div");
+      repoHeader.className = "repo-header";
+
+      const repoTitle = document.createElement("a");
+      repoTitle.className = "repo-title";
+      repoTitle.href = repo.html_url;
+      repoTitle.target = "_blank";
+      repoTitle.textContent = `${repo.owner.login}/${repo.name}`;
+
+      const repoStars = document.createElement("span");
+      repoStars.className = "repo-stars";
+      repoStars.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> ${repo.stargazers_count}`;
+
+      repoHeader.appendChild(repoTitle);
+      repoHeader.appendChild(repoStars);
+      repoCard.appendChild(repoHeader);
+
+      if (repo.description) {
+        const repoDesc = document.createElement("p");
+        repoDesc.className = "repo-description";
+        repoDesc.textContent = repo.description;
+        repoCard.appendChild(repoDesc);
+      }
+
+      if (repo.language) {
+        const repoLang = document.createElement("div");
+        repoLang.className = "repo-language";
+
+        const langColor = document.createElement("span");
+        langColor.className = "language-color";
+        langColor.style.backgroundColor =
+          languageColors[repo.language] || "#858585";
+
+        const langName = document.createElement("span");
+        langName.textContent = repo.language;
+
+        repoLang.appendChild(langColor);
+        repoLang.appendChild(langName);
+        repoCard.appendChild(repoLang);
+      }
+
+      starredContainer.appendChild(repoCard);
+    });
+  }
+
   submitBtn.addEventListener("click", () => {
     let username = inputLink?.value.trim();
 
@@ -186,33 +370,35 @@ window.addEventListener("load", () => {
       submitBtn.textContent = "Loading...";
       submitBtn.setAttribute("disabled", "true");
 
-      fetch(`https://api.github.com/users/${username}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Profile not found");
-          }
+      Promise.all([
+        fetch(`https://api.github.com/users/${username}`).then((response) => {
+          if (!response.ok) throw new Error("Profile not found");
           return response.json();
-        })
-        .then((data: GitHubUser) => {
+        }),
+        fetchUserLanguages(username),
+        fetchContributions(username),
+        fetchStarredRepos(username),
+      ])
+        .then(([userData, languages, contributions, starredRepos]) => {
           document.getElementById("username")!.textContent =
-            data.name || data.login;
-          document.getElementById("login")!.textContent = `@${data.login}`;
+            userData.name || userData.login;
+          document.getElementById("login")!.textContent = `@${userData.login}`;
           document.getElementById("bio")!.textContent =
-            data.bio || "No bio available";
+            userData.bio || "No bio available";
           document.getElementById("location")!.textContent =
-            data.location ?? "Location not available";
+            userData.location ?? "Location not available";
           document.getElementById(
             "followers"
-          )!.textContent = `${data.followers} followers`;
+          )!.textContent = `${userData.followers} followers`;
           document.getElementById(
             "following"
-          )!.textContent = `${data.following} following`;
+          )!.textContent = `${userData.following} following`;
           document.getElementById(
             "public_repos"
-          )!.textContent = `${data.public_repos} public repositories`;
+          )!.textContent = `${userData.public_repos} public repositories`;
           document.getElementById(
             "created_at"
-          )!.textContent = `Joined on ${formatDate(data.created_at)}`;
+          )!.textContent = `Joined on ${formatDate(userData.created_at)}`;
 
           if (avatarImg) {
             avatarImg.src = data.avatar_url;
