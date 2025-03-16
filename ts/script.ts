@@ -175,9 +175,7 @@ window.addEventListener("load", () => {
     });
   }
 
-  function fetchContributions(username: string): Promise<ContributionDay[]> {
-    // Note: GitHub doesn't have a direct API for contribution data
-    // This is a simplified approach to get recent commit activity
+  function fetchContributions(username: string): Promise<ContributionDate[]> {
     const now = new Date();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(now.getFullYear() - 1);
@@ -193,10 +191,8 @@ window.addEventListener("load", () => {
         return response.json();
       })
       .then((events) => {
-        // Process events to get contribution counts by day
         const contributionMap: Map<string, number> = new Map();
 
-        // Initialize last 365 days with zero counts
         for (let i = 0; i < 365; i++) {
           const date = new Date();
           date.setDate(date.getDate() - i);
@@ -204,24 +200,20 @@ window.addEventListener("load", () => {
           contributionMap.set(dateStr, 0);
         }
 
-        // Count push events (commits)
         events.forEach((event: any) => {
           if (event.type === "PushEvent") {
             const date = event.created_at.split("T")[0];
             const currentCount = contributionMap.get(date) || 0;
-            // Count each commit in the push
             const commitCount = event.payload.commits?.length || 0;
             contributionMap.set(date, currentCount + commitCount);
           }
         });
 
-        // Convert map to array of objects
-        const contributions: ContributionDay[] = [];
+        const contributions: ContributionDate[] = [];
         contributionMap.forEach((count, date) => {
           contributions.push({ date, count });
         });
 
-        // Sort by date
         return contributions.sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
@@ -243,19 +235,16 @@ window.addEventListener("load", () => {
       });
   }
 
-  function renderContributionGraph(contributions: ContributionDay[]) {
+  function renderContributionGraph(contributions: ContributionDate[]) {
     const calendarContainer = document.querySelector(".contribution-calendar");
     if (!calendarContainer) return;
 
     calendarContainer.innerHTML = "";
 
-    // Get max contribution count for color scaling
     const maxCount = Math.max(...contributions.map((day) => day.count), 4);
 
-    // Limit to most recent 91 days (13 weeks) for display
     const recentContributions = contributions.slice(-91);
 
-    // Group by week (7 days)
     for (let weekIndex = 0; weekIndex < 13; weekIndex++) {
       const weekContainer = document.createElement("div");
       weekContainer.className = "contribution-week";
@@ -271,7 +260,6 @@ window.addEventListener("load", () => {
         daySquare.className = "contribution-day";
 
         if (day) {
-          // Calculate color intensity based on contribution count
           let intensity = day.count / maxCount;
           let colorClass = "level-0";
 
@@ -286,7 +274,6 @@ window.addEventListener("load", () => {
           daySquare.setAttribute("data-date", day.date);
           daySquare.setAttribute("data-count", String(day.count));
 
-          // Add tooltip
           daySquare.title = `${day.date}: ${day.count} contributions`;
         }
 
@@ -401,24 +388,24 @@ window.addEventListener("load", () => {
           )!.textContent = `Joined on ${formatDate(userData.created_at)}`;
 
           if (avatarImg) {
-            avatarImg.src = data.avatar_url;
+            avatarImg.src = userData.avatar_url;
           }
 
           if (githubLinkButton) {
-            githubLinkButton.href = data.html_url;
+            githubLinkButton.href = userData.html_url;
           }
 
-          return fetchUserLanguages(username);
-        })
-        .then((languages) => {
           renderLanguages(languages);
+          renderContributionGraph(contributions);
+          renderStarredRepos(starredRepos);
+
           showProfile();
         })
         .catch((error) => {
           alert(`Error: ${error.message || "Could not fetch profile"}`);
           console.error("Error fetching GitHub data:", error);
         })
-        .then(() => {
+        .finally(() => {
           submitBtn.textContent = "View Profile";
           submitBtn.removeAttribute("disabled");
         });
